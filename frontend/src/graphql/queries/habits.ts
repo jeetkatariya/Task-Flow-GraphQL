@@ -13,6 +13,12 @@ export const GET_HABITS = gql`
         currentStreak
         longestStreak
       }
+      logs {
+        id
+        date
+        completed
+        notes
+      }
       createdAt
     }
   }

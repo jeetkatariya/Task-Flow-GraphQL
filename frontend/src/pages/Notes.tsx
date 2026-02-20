@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useCallback } from 'react';
 import { useQuery, useMutation } from '@apollo/client';
 import {
   Box,
@@ -45,46 +45,81 @@ const Notes: React.FC = () => {
 
   const { data: pinnedData, refetch: refetchPinned } = useQuery(GET_PINNED_NOTES);
 
-  const refetchAll = () => { refetchNotes(); refetchPinned(); };
+  const refetchAll = useCallback(() => {
+    console.log('[Notes] Refetching notes data…');
+    refetchNotes();
+    refetchPinned();
+  }, [refetchNotes, refetchPinned]);
 
   const [createNote] = useMutation(CREATE_NOTE, {
-    onCompleted: () => {
+    onCompleted: (data) => {
+      console.log('[Notes] Created note:', data.createNote.title);
       setCreateDialogOpen(false);
       setNewNote({ title: '', content: '', isPinned: false });
       refetchAll();
     },
-    onError: (err) => setError(err.message),
+    onError: (err) => {
+      console.error('[Notes] Create error:', err.message);
+      setError(err.message);
+    },
   });
 
   const [updateNote] = useMutation(UPDATE_NOTE, {
     onCompleted: (data) => {
+      console.log('[Notes] Updated note:', data.updateNote.id);
       setEditMode(false);
       setSelectedNote(data.updateNote);
       refetchAll();
     },
-    onError: (err) => setError(err.message),
+    onError: (err) => {
+      console.error('[Notes] Update error:', err.message);
+      setError(err.message);
+    },
   });
 
   const [pinNote] = useMutation(PIN_NOTE, {
-    onCompleted: () => refetchAll(),
-    onError: (err) => setError(err.message),
+    onCompleted: (data) => {
+      console.log('[Notes] Pinned note:', data.pinNote.id);
+      if (selectedNote && selectedNote.id === data.pinNote.id) {
+        setSelectedNote({ ...selectedNote, isPinned: true });
+      }
+      refetchAll();
+    },
+    onError: (err) => {
+      console.error('[Notes] Pin error:', err.message);
+      setError(err.message);
+    },
   });
 
   const [unpinNote] = useMutation(UNPIN_NOTE, {
-    onCompleted: () => refetchAll(),
-    onError: (err) => setError(err.message),
+    onCompleted: (data) => {
+      console.log('[Notes] Unpinned note:', data.unpinNote.id);
+      if (selectedNote && selectedNote.id === data.unpinNote.id) {
+        setSelectedNote({ ...selectedNote, isPinned: false });
+      }
+      refetchAll();
+    },
+    onError: (err) => {
+      console.error('[Notes] Unpin error:', err.message);
+      setError(err.message);
+    },
   });
 
   const [deleteNote] = useMutation(DELETE_NOTE, {
     onCompleted: () => {
+      console.log('[Notes] Deleted note');
       setViewDialogOpen(false);
       setSelectedNote(null);
       refetchAll();
     },
-    onError: (err) => setError(err.message),
+    onError: (err) => {
+      console.error('[Notes] Delete error:', err.message);
+      setError(err.message);
+    },
   });
 
   const handleCreateNote = () => {
+    console.log('[Notes] Creating note:', newNote.title);
     createNote({ variables: { createNoteInput: newNote } });
   };
 
@@ -96,6 +131,7 @@ const Notes: React.FC = () => {
 
   const handleSaveEdit = () => {
     if (!selectedNote) return;
+    console.log('[Notes] Saving edit for note:', selectedNote.id);
     updateNote({
       variables: {
         id: selectedNote.id,
@@ -109,6 +145,7 @@ const Notes: React.FC = () => {
 
   const handleTogglePin = (noteId: string, isPinned: boolean, e?: React.MouseEvent) => {
     if (e) e.stopPropagation();
+    console.log(`[Notes] Toggle pin: note=${noteId}, currently pinned=${isPinned}`);
     if (isPinned) {
       unpinNote({ variables: { id: noteId } });
     } else {
@@ -204,7 +241,7 @@ const Notes: React.FC = () => {
       <Grid container spacing={2}>
         {notes.map((note: any) => (
           <Grid item xs={12} sm={6} md={4} key={note.id}>
-            <Card>
+            <Card sx={{ transition: 'box-shadow 0.2s', '&:hover': { boxShadow: 4 } }}>
               <CardActionArea onClick={() => handleOpenNote(note)}>
                 <CardContent>
                   <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start' }}>
@@ -246,7 +283,7 @@ const Notes: React.FC = () => {
           <TextField fullWidth label="Content" value={newNote.content} onChange={(e) => setNewNote({ ...newNote, content: e.target.value })} margin="normal" multiline rows={12} required />
         </DialogContent>
         <DialogActions>
-          <Button onClick={() => setCreateDialogOpen(false)}>Cancel</Button>
+          <Button onClick={() => { setCreateDialogOpen(false); setNewNote({ title: '', content: '', isPinned: false }); }}>Cancel</Button>
           <Button onClick={handleCreateNote} variant="contained" disabled={!newNote.title || !newNote.content}>Create</Button>
         </DialogActions>
       </Dialog>

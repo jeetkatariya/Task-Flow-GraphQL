@@ -26,6 +26,32 @@ export const GET_REMINDERS = gql`
   }
 `;
 
+export const GET_ALL_REMINDERS = gql`
+  query GetAllReminders {
+    reminders {
+      id
+      title
+      description
+      reminderTime
+      timezone
+      isRecurring
+      recurrencePattern {
+        frequency
+        interval
+      }
+      isCompleted
+      task {
+        id
+        title
+      }
+      note {
+        id
+        title
+      }
+    }
+  }
+`;
+
 export const GET_REMINDER = gql`
   query GetReminder($id: ID!) {
     reminder(id: $id) {

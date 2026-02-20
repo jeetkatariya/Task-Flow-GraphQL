@@ -9,6 +9,7 @@ export const CREATE_REMINDER = gql`
       reminderTime
       timezone
       isRecurring
+      isCompleted
     }
   }
 `;
@@ -22,6 +23,7 @@ export const UPDATE_REMINDER = gql`
       reminderTime
       timezone
       isRecurring
+      isCompleted
     }
   }
 `;
@@ -31,6 +33,7 @@ export const SNOOZE_REMINDER = gql`
     snoozeReminder(id: $id, minutes: $minutes) {
       id
       reminderTime
+      isCompleted
     }
   }
 `;
@@ -40,6 +43,8 @@ export const COMPLETE_REMINDER = gql`
     completeReminder(id: $id) {
       id
       isCompleted
+      isRecurring
+      reminderTime
     }
   }
 `;

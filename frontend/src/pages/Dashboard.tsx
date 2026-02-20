@@ -22,19 +22,20 @@ import {
 import { GET_TASKS, GET_OVERDUE_TASKS, GET_UPCOMING_TASKS } from '../graphql/queries/tasks';
 import { GET_PINNED_NOTES } from '../graphql/queries/notes';
 import { GET_HABITS } from '../graphql/queries/habits';
-import { GET_REMINDERS } from '../graphql/queries/reminders';
+import { GET_ALL_REMINDERS } from '../graphql/queries/reminders';
 
 const Dashboard: React.FC = () => {
   const navigate = useNavigate();
 
   const { data: tasksData } = useQuery(GET_TASKS, {
     variables: { pagination: { page: 1, limit: 100 } },
+    fetchPolicy: 'cache-and-network',
   });
-  const { data: overdueData } = useQuery(GET_OVERDUE_TASKS);
-  const { data: upcomingData } = useQuery(GET_UPCOMING_TASKS, { variables: { days: 7 } });
-  const { data: notesData } = useQuery(GET_PINNED_NOTES);
-  const { data: habitsData } = useQuery(GET_HABITS);
-  const { data: remindersData } = useQuery(GET_REMINDERS, { variables: { upcoming: true } });
+  const { data: overdueData } = useQuery(GET_OVERDUE_TASKS, { fetchPolicy: 'cache-and-network' });
+  const { data: upcomingData } = useQuery(GET_UPCOMING_TASKS, { variables: { days: 7 }, fetchPolicy: 'cache-and-network' });
+  const { data: notesData } = useQuery(GET_PINNED_NOTES, { fetchPolicy: 'cache-and-network' });
+  const { data: habitsData } = useQuery(GET_HABITS, { fetchPolicy: 'cache-and-network' });
+  const { data: remindersData } = useQuery(GET_ALL_REMINDERS, { fetchPolicy: 'cache-and-network' });
 
   const totalTasks = tasksData?.tasks?.meta?.total ?? 0;
   const tasks = tasksData?.tasks?.tasks || [];
@@ -42,10 +43,20 @@ const Dashboard: React.FC = () => {
   const upcomingTasks = upcomingData?.upcomingTasks || [];
   const pinnedNotes = notesData?.pinnedNotes || [];
   const habits = habitsData?.habits || [];
-  const reminders = remindersData?.reminders || [];
+  const allReminders = remindersData?.reminders || [];
+  const activeReminders = allReminders.filter((r: any) => !r.isCompleted);
 
   const completedTasks = tasks.filter((t: any) => t.status === 'done').length;
   const taskCompletionRate = totalTasks > 0 ? (completedTasks / totalTasks) * 100 : 0;
+
+  console.log('[Dashboard] Stats:', {
+    totalTasks,
+    completedTasks,
+    overdue: overdueTasks.length,
+    habits: habits.length,
+    activeReminders: activeReminders.length,
+    pinnedNotes: pinnedNotes.length,
+  });
 
   const statCardSx = {
     height: '100%',
@@ -121,11 +132,11 @@ const Dashboard: React.FC = () => {
               <CardContent>
                 <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1 }}>
                   <ReminderIcon color="info" />
-                  <Typography color="text.secondary">Upcoming Reminders</Typography>
+                  <Typography color="text.secondary">Active Reminders</Typography>
                 </Box>
-                <Typography variant="h4">{reminders.length}</Typography>
+                <Typography variant="h4">{activeReminders.length}</Typography>
                 <Typography variant="body2" sx={{ mt: 2 }}>
-                  {reminders.length > 0 ? `Next: ${reminders[0]?.title}` : 'No reminders'}
+                  {activeReminders.length > 0 ? `Next: ${activeReminders[0]?.title}` : 'No reminders'}
                 </Typography>
               </CardContent>
             </CardActionArea>

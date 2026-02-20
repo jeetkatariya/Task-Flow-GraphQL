@@ -94,7 +94,7 @@ type Habit {
 type HabitLog {
   completed: Boolean!
   createdAt: DateTime!
-  date: DateTime!
+  date: String!
   habit: Habit!
   id: ID!
   notes: String

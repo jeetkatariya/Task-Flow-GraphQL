@@ -39,7 +39,7 @@ export class HabitsService {
   async findAll(user: User): Promise<Habit[]> {
     return this.habitsRepository.find({
       where: { user: { id: user.id } },
-      relations: ['streak'],
+      relations: ['streak', 'logs'],
       order: { createdAt: 'DESC' },
     });
   }
@@ -75,7 +75,7 @@ export class HabitsService {
     return true;
   }
 
-  async logHabit(habitId: string, date: Date, completed: boolean, notes?: string, userId?: string): Promise<HabitLog> {
+  async logHabit(habitId: string, dateStr: string, completed: boolean, notes?: string, userId?: string): Promise<HabitLog> {
     if (userId) {
       await this.findOne(habitId, userId);
     }
@@ -83,7 +83,7 @@ export class HabitsService {
     const habit = { id: habitId } as Habit;
 
     const existingLog = await this.logRepository.findOne({
-      where: { habit: { id: habitId }, date },
+      where: { habit: { id: habitId }, date: dateStr },
     });
 
     if (existingLog) {
@@ -96,7 +96,7 @@ export class HabitsService {
 
     const log = this.logRepository.create({
       habit,
-      date,
+      date: dateStr,
       completed,
       notes,
     });

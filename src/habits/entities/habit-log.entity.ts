@@ -15,9 +15,9 @@ export class HabitLog {
   @JoinColumn({ name: 'habit_id' })
   habit: Habit;
 
-  @Field()
+  @Field(() => String)
   @Column({ type: 'date' })
-  date: Date;
+  date: string;
 
   @Field()
   @Column({ default: false })

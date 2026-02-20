@@ -77,7 +77,7 @@ export class HabitsResolver {
     @CurrentUser() user: User,
     @Args('notes', { nullable: true }) notes?: string,
   ): Promise<HabitLog> {
-    return this.habitsService.logHabit(habitId, new Date(date), completed, notes, user.id);
+    return this.habitsService.logHabit(habitId, date, completed, notes, user.id);
   }
 
   @Mutation(() => Boolean)

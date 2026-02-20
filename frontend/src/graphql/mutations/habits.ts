@@ -9,6 +9,17 @@ export const CREATE_HABIT = gql`
       frequency
       targetDays
       color
+      streak {
+        currentStreak
+        longestStreak
+      }
+      logs {
+        id
+        date
+        completed
+        notes
+      }
+      createdAt
     }
   }
 `;

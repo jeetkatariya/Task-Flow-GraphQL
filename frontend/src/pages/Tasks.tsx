@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useCallback } from 'react';
 import { useQuery, useMutation } from '@apollo/client';
 import {
   Box,
@@ -51,36 +51,60 @@ const Tasks: React.FC = () => {
   const { data: tasksData, loading, refetch } = useQuery(GET_TASKS, { variables: filterVars });
   const { data: overdueData, refetch: refetchOverdue } = useQuery(GET_OVERDUE_TASKS);
 
-  const refetchAll = () => { refetch(); refetchOverdue(); };
+  const refetchAll = useCallback(() => {
+    console.log('[Tasks] Refetching tasks data…');
+    refetch();
+    refetchOverdue();
+  }, [refetch, refetchOverdue]);
 
   const [createTask] = useMutation(CREATE_TASK, {
-    onCompleted: () => {
+    onCompleted: (data) => {
+      console.log('[Tasks] Created task:', data.createTask.title, '(id:', data.createTask.id + ')');
       setCreateDialogOpen(false);
       setNewTask({ ...EMPTY_TASK });
       setError('');
       refetchAll();
     },
-    onError: (err) => setError(err.message),
+    onError: (err) => {
+      console.error('[Tasks] Create error:', err.message);
+      setError(err.message);
+    },
   });
 
   const [updateTask] = useMutation(UPDATE_TASK, {
-    onCompleted: () => {
+    onCompleted: (data) => {
+      console.log('[Tasks] Updated task:', data.updateTask.id);
       setEditDialogOpen(false);
       setEditingTask(null);
       setError('');
       refetchAll();
     },
-    onError: (err) => setError(err.message),
+    onError: (err) => {
+      console.error('[Tasks] Update error:', err.message);
+      setError(err.message);
+    },
   });
 
   const [completeTask] = useMutation(COMPLETE_TASK, {
-    onCompleted: () => refetchAll(),
-    onError: (err) => setError(err.message),
+    onCompleted: (data) => {
+      console.log('[Tasks] Completed task:', data.completeTask.id, 'status:', data.completeTask.status);
+      refetchAll();
+    },
+    onError: (err) => {
+      console.error('[Tasks] Complete error:', err.message);
+      setError(err.message);
+    },
   });
 
   const [deleteTask] = useMutation(DELETE_TASK, {
-    onCompleted: () => refetchAll(),
-    onError: (err) => setError(err.message),
+    onCompleted: () => {
+      console.log('[Tasks] Deleted task');
+      refetchAll();
+    },
+    onError: (err) => {
+      console.error('[Tasks] Delete error:', err.message);
+      setError(err.message);
+    },
   });
 
   const handleCreateTask = () => {
@@ -88,6 +112,7 @@ const Tasks: React.FC = () => {
     if (newTask.description) input.description = newTask.description;
     if (newTask.priority) input.priority = newTask.priority;
     if (newTask.dueDate) input.dueDate = new Date(newTask.dueDate).toISOString();
+    console.log('[Tasks] Creating task:', input.title);
     createTask({ variables: { createTaskInput: input } });
   };
 
@@ -111,10 +136,12 @@ const Tasks: React.FC = () => {
     if (editingTask.priority) input.priority = editingTask.priority;
     if (editingTask.status) input.status = editingTask.status;
     if (editingTask.dueDate) input.dueDate = new Date(editingTask.dueDate).toISOString();
+    console.log('[Tasks] Saving edit for task:', editingTask.id);
     updateTask({ variables: { id: editingTask.id, updateTaskInput: input } });
   };
 
   const handleCompleteTask = (id: string) => {
+    console.log('[Tasks] Toggling complete for task:', id);
     completeTask({ variables: { id } });
   };
 
@@ -192,6 +219,8 @@ const Tasks: React.FC = () => {
             <Card sx={{
               opacity: task.status === 'done' ? 0.7 : 1,
               borderLeft: task.isOverdue ? '4px solid red' : 'none',
+              transition: 'box-shadow 0.2s',
+              '&:hover': { boxShadow: 4 },
             }}>
               <CardContent>
                 <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start' }}>
@@ -254,7 +283,7 @@ const Tasks: React.FC = () => {
           <TextField fullWidth label="Due Date" type="datetime-local" value={newTask.dueDate} onChange={(e) => setNewTask({ ...newTask, dueDate: e.target.value })} margin="normal" InputLabelProps={{ shrink: true }} />
         </DialogContent>
         <DialogActions>
-          <Button onClick={() => setCreateDialogOpen(false)}>Cancel</Button>
+          <Button onClick={() => { setCreateDialogOpen(false); setNewTask({ ...EMPTY_TASK }); }}>Cancel</Button>
           <Button onClick={handleCreateTask} variant="contained" disabled={!newTask.title}>Create</Button>
         </DialogActions>
       </Dialog>
