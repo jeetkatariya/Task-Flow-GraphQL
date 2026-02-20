@@ -16,7 +16,7 @@ import PostCard from '../components/PostCard/PostCard';
 
 const Posts: React.FC = () => {
   const navigate = useNavigate();
-  const [publishedFilter, setPublishedFilter] = useState<boolean | null>(true);
+  const [publishedFilter, setPublishedFilter] = useState<boolean | null | string>(true);
 
   const { data, loading, error } = useQuery(GET_POSTS, {
     variables: { published: publishedFilter },
@@ -24,10 +24,10 @@ const Posts: React.FC = () => {
 
   const handleFilterChange = (
     _event: React.MouseEvent<HTMLElement>,
-    newFilter: boolean | null,
+    newFilter: boolean | null | string,
   ) => {
     if (newFilter !== null) {
-      setPublishedFilter(newFilter);
+      setPublishedFilter(newFilter === 'all' ? null : newFilter);
     }
   };
 
@@ -68,7 +68,7 @@ const Posts: React.FC = () => {
         <ToggleButton value={false} aria-label="drafts">
           Drafts
         </ToggleButton>
-        <ToggleButton value={null} aria-label="all">
+        <ToggleButton value="all" aria-label="all">
           All
         </ToggleButton>
       </ToggleButtonGroup>
