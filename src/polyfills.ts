@@ -12,7 +12,9 @@ const cryptoPolyfill = {
   },
 };
 
-(globalThis as any).crypto = cryptoPolyfill;
-(global as any).crypto = cryptoPolyfill;
+if (typeof globalThis.crypto === 'undefined') {
+  (globalThis as any).crypto = cryptoPolyfill;
+  (global as any).crypto = cryptoPolyfill;
+}
 
 export {};
