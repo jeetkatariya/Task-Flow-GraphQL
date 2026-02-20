@@ -1,0 +1,464 @@
+# ------------------------------------------------------
+# THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
+# ------------------------------------------------------
+
+type AuthResponse {
+  access_token: String!
+  user: User!
+}
+
+type Comment {
+  author: User!
+  content: String!
+  createdAt: DateTime!
+  id: ID!
+  post: Post!
+  updatedAt: DateTime!
+}
+
+input CreateCommentInput {
+  content: String!
+  postId: ID!
+}
+
+input CreateHabitInput {
+  color: String
+  description: String
+  frequency: String = "daily"
+  name: String!
+  targetDays: [Int!]
+}
+
+input CreateNoteInput {
+  categoryId: ID
+  content: String!
+  isPinned: Boolean = false
+  tagIds: [ID!]
+  title: String!
+}
+
+input CreatePostInput {
+  content: String!
+  published: Boolean! = false
+  title: String!
+}
+
+input CreateReminderInput {
+  description: String
+  isRecurring: Boolean = false
+  noteId: ID
+  recurrencePattern: RecurrencePatternInput
+  reminderTime: String!
+  taskId: ID
+  timezone: String = "UTC"
+  title: String!
+}
+
+input CreateTaskInput {
+  categoryId: ID
+  dependsOnTaskIds: [ID!]
+  description: String
+  dueDate: String
+  priority: String = "medium"
+  status: String = "todo"
+  tagIds: [ID!]
+  title: String!
+}
+
+input CreateUserInput {
+  email: String!
+  firstName: String!
+  lastName: String!
+  username: String!
+}
+
+"""
+A date-time string at UTC, such as 2019-12-03T09:54:33Z, compliant with the date-time format.
+"""
+scalar DateTime
+
+type Habit {
+  color: String!
+  createdAt: DateTime!
+  description: String
+  frequency: String!
+  id: ID!
+  logs: [HabitLog!]
+  name: String!
+  streak: HabitStreak
+  targetDays: [Int!]!
+  updatedAt: DateTime!
+  user: User!
+}
+
+type HabitLog {
+  completed: Boolean!
+  createdAt: DateTime!
+  date: DateTime!
+  habit: Habit!
+  id: ID!
+  notes: String
+}
+
+type HabitStats {
+  completedDays: Int!
+  completionRate: Float!
+  currentStreak: Int!
+  longestStreak: Int!
+  totalDays: Int!
+  weeklyCompletion: [Int!]!
+}
+
+type HabitStreak {
+  currentStreak: Int!
+  habit: Habit!
+  id: ID!
+  lastCompletedDate: String
+  longestStreak: Int!
+  updatedAt: DateTime!
+}
+
+input LoginInput {
+  email: String!
+  password: String!
+}
+
+type Mutation {
+  archiveNote(id: ID!): Note!
+  bulkUpdateTasks(taskIds: [ID!]!, updateData: UpdateTaskInput!): [Task!]!
+  completeReminder(id: ID!): Reminder!
+  completeTask(id: ID!): Task!
+  createComment(createCommentInput: CreateCommentInput!): Comment!
+  createHabit(createHabitInput: CreateHabitInput!): Habit!
+  createNote(createNoteInput: CreateNoteInput!): Note!
+  createPost(createPostInput: CreatePostInput!): Post!
+  createReminder(createReminderInput: CreateReminderInput!): Reminder!
+  createTask(createTaskInput: CreateTaskInput!): Task!
+  createUser(createUserInput: CreateUserInput!): User!
+  logHabit(completed: Boolean!, date: String!, habitId: ID!, notes: String): HabitLog!
+  login(loginInput: LoginInput!): AuthResponse!
+  pinNote(id: ID!): Note!
+  removeComment(id: ID!): Boolean!
+  removeHabit(id: ID!): Boolean!
+  removeNote(id: ID!): Boolean!
+  removePost(id: ID!): Boolean!
+  removeReminder(id: ID!): Boolean!
+  removeTask(id: ID!): Boolean!
+  removeUser(id: ID!): Boolean!
+  signup(signupInput: SignupInput!): AuthResponse!
+  snoozeReminder(id: ID!, minutes: Float!): Reminder!
+  unarchiveNote(id: ID!): Note!
+  unpinNote(id: ID!): Note!
+  updateComment(id: ID!, updateCommentInput: UpdateCommentInput!): Comment!
+  updateHabit(id: ID!, updateHabitInput: UpdateHabitInput!): Habit!
+  updateNote(id: ID!, updateNoteInput: UpdateNoteInput!): Note!
+  updatePost(id: ID!, updatePostInput: UpdatePostInput!): Post!
+  updateReminder(id: ID!, updateReminderInput: UpdateReminderInput!): Reminder!
+  updateTask(id: ID!, updateTaskInput: UpdateTaskInput!): Task!
+  updateUser(id: ID!, updateUserInput: UpdateUserInput!): User!
+}
+
+type Note {
+  attachments: [NoteAttachment!]
+  category: NoteCategory
+  content: String!
+  createdAt: DateTime!
+  id: ID!
+  isArchived: Boolean!
+  isPinned: Boolean!
+  tags: [NoteTag!]
+  title: String!
+  updatedAt: DateTime!
+  user: User!
+}
+
+type NoteAttachment {
+  createdAt: DateTime!
+  fileName: String!
+  fileSize: Int
+  fileType: String
+  fileUrl: String!
+  id: ID!
+  note: Note!
+}
+
+type NoteCategory {
+  color: String!
+  createdAt: DateTime!
+  id: ID!
+  name: String!
+  notes: [Note!]
+  updatedAt: DateTime!
+  user: User!
+}
+
+input NoteSearchInput {
+  categoryId: ID
+  isArchived: Boolean
+  isPinned: Boolean
+  search: String
+  tagIds: [ID!]
+}
+
+type NoteTag {
+  createdAt: DateTime!
+  id: ID!
+  name: String!
+  notes: [Note!]
+  user: User!
+}
+
+input PaginationInput {
+  limit: Int = 20
+  page: Int = 1
+}
+
+type PaginationMeta {
+  limit: Int!
+  page: Int!
+  total: Int!
+  totalPages: Int!
+}
+
+type Post {
+  author: User!
+  comments: [Comment!]
+  content: String!
+  createdAt: DateTime!
+  id: ID!
+  published: Boolean!
+  title: String!
+  updatedAt: DateTime!
+}
+
+type Query {
+  comment(id: ID!): Comment!
+  comments: [Comment!]!
+  commentsByPost(postId: ID!): [Comment!]!
+  habit(id: ID!): Habit!
+  habitStats(habitId: ID!, periodDays: Int): HabitStats!
+  habitStreak(habitId: ID!): HabitStreak!
+  habits: [Habit!]!
+  me: User!
+  note(id: ID!): Note!
+  notes(search: NoteSearchInput): [Note!]!
+  overdueTasks: [Task!]!
+  pinnedNotes: [Note!]!
+  post(id: ID!): Post!
+  posts(published: Boolean): [Post!]!
+  recentNotes(limit: Float = 10): [Note!]!
+  reminder(id: ID!): Reminder!
+  reminders(upcoming: Boolean): [Reminder!]!
+  remindersForDate(date: String!): [Reminder!]!
+  task(id: ID!): Task!
+  taskDependencyChain(taskId: ID!): [Task!]!
+  tasks(filter: TaskFilterInput, pagination: PaginationInput, sort: TaskSortInput): TasksResponse!
+  tasksByCategory(categoryId: ID!): [Task!]!
+  tasksByTag(tagId: ID!): [Task!]!
+  upcomingTasks(days: Int = 7): [Task!]!
+  user(id: ID!): User!
+  users: [User!]!
+}
+
+input RecurrencePatternInput {
+  byDay: [Int!]
+  byMonth: [Int!]
+  byMonthDay: [Int!]
+  count: Int
+  frequency: String!
+  interval: Int
+  timezone: String
+  until: String
+}
+
+type RecurrencePatternType {
+  byDay: [Int!]
+  byMonth: [Int!]
+  byMonthDay: [Int!]
+  count: Int
+  frequency: String!
+  interval: Int
+  timezone: String
+  until: String
+}
+
+type Reminder {
+  createdAt: DateTime!
+  description: String
+  id: ID!
+  isCompleted: Boolean!
+  isRecurring: Boolean!
+  note: Note
+  notifications: [ReminderNotification!]
+  recurrencePattern: RecurrencePatternType
+  reminderTime: DateTime!
+  task: Task
+  timezone: String!
+  title: String!
+  updatedAt: DateTime!
+  user: User!
+}
+
+type ReminderNotification {
+  id: ID!
+  notificationType: String!
+  reminder: Reminder!
+  sentAt: DateTime!
+}
+
+input SignupInput {
+  email: String!
+  firstName: String!
+  lastName: String!
+  password: String!
+  username: String!
+}
+
+type Subscription {
+  reminderCreated: Reminder!
+  reminderDue: Reminder!
+  taskCompleted: Task!
+  taskCreated: Task!
+  taskUpdated: Task!
+}
+
+type Task {
+  category: TaskCategory
+  completedAt: DateTime
+  completionPercentage: Float!
+  createdAt: DateTime!
+  daysUntilDue: Float
+  dependencies: [TaskDependency!]
+  dependents: [TaskDependency!]
+  description: String
+  dueDate: DateTime
+  id: ID!
+  isOverdue: Boolean!
+  priority: String!
+  priorityScore: Float!
+  status: String!
+  tags: [TaskTag!]
+  title: String!
+  updatedAt: DateTime!
+  user: User!
+}
+
+type TaskCategory {
+  color: String!
+  createdAt: DateTime!
+  id: ID!
+  name: String!
+  tasks: [Task!]
+  updatedAt: DateTime!
+  user: User!
+}
+
+type TaskDependency {
+  createdAt: DateTime!
+  dependsOn: Task!
+  id: ID!
+  task: Task!
+}
+
+input TaskFilterInput {
+  categoryId: ID
+  createdFrom: String
+  createdTo: String
+  dueDateFrom: String
+  dueDateTo: String
+  priority: [String!]
+  search: String
+  status: [String!]
+  tagIds: [ID!]
+}
+
+input TaskSortInput {
+  direction: String = "DESC"
+  field: String = "created_at"
+}
+
+type TaskTag {
+  createdAt: DateTime!
+  id: ID!
+  name: String!
+  tasks: [Task!]
+  user: User!
+}
+
+type TasksResponse {
+  meta: PaginationMeta!
+  tasks: [Task!]!
+}
+
+input UpdateCommentInput {
+  content: String
+  postId: ID
+}
+
+input UpdateHabitInput {
+  color: String
+  description: String
+  frequency: String = "daily"
+  name: String
+  targetDays: [Int!]
+}
+
+input UpdateNoteInput {
+  categoryId: ID
+  content: String
+  isPinned: Boolean = false
+  tagIds: [ID!]
+  title: String
+}
+
+input UpdatePostInput {
+  content: String
+  published: Boolean = false
+  title: String
+}
+
+input UpdateReminderInput {
+  description: String
+  isRecurring: Boolean = false
+  noteId: ID
+  recurrencePattern: RecurrencePatternInput
+  reminderTime: String
+  taskId: ID
+  timezone: String = "UTC"
+  title: String
+}
+
+input UpdateTaskInput {
+  categoryId: ID
+  dependsOnTaskIds: [ID!]
+  description: String
+  dueDate: String
+  id: ID
+  priority: String = "medium"
+  status: String = "todo"
+  tagIds: [ID!]
+  title: String
+}
+
+input UpdateUserInput {
+  email: String
+  firstName: String
+  lastName: String
+  username: String
+}
+
+type User {
+  comments: [Comment!]
+  createdAt: DateTime!
+  email: String!
+  firstName: String!
+  habits: [Habit!]
+  id: ID!
+  lastName: String!
+  notes: [Note!]
+  posts: [Post!]
+  reminders: [Reminder!]
+  tasks: [Task!]
+  updatedAt: DateTime!
+  username: String!
+}
