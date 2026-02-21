@@ -1,10 +1,11 @@
 -- Seed data for demo purposes
--- Insert sample users with passwords
 -- Default password for all users: "password123"
+
 INSERT INTO users (id, email, username, first_name, last_name, password) VALUES
     ('550e8400-e29b-41d4-a716-446655440000', 'alice@example.com', 'alice', 'Alice', 'Johnson', '$2b$10$RAFlFycSQG2BrQVB0HHOe.6FTj9i0fPfcQhauSMmwr0ddy0DEMm2.'),
     ('550e8400-e29b-41d4-a716-446655440001', 'bob@example.com', 'bob', 'Bob', 'Smith', '$2b$10$IUwVK0FqvvaGIwxtyap4DeWeY1dRrQBknj/Ql0VFuiNM61i.yrkYK'),
-    ('550e8400-e29b-41d4-a716-446655440002', 'charlie@example.com', 'charlie', 'Charlie', 'Brown', '$2b$10$ucM4FdOxPmio7CwVWFqUhefHKwW/i81gjAWug/oJasH6MBtDFkq1G')
+    ('550e8400-e29b-41d4-a716-446655440002', 'charlie@example.com', 'charlie', 'Charlie', 'Brown', '$2b$10$ucM4FdOxPmio7CwVWFqUhefHKwW/i81gjAWug/oJasH6MBtDFkq1G'),
+    ('550e8400-e29b-41d4-a716-446655440003', 'diana@example.com', 'diana', 'Diana', 'Chen', '$2b$10$RAFlFycSQG2BrQVB0HHOe.6FTj9i0fPfcQhauSMmwr0ddy0DEMm2.')
 ON CONFLICT (id) DO NOTHING;
 
 -- Insert sample posts
